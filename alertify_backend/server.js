@@ -98,6 +98,14 @@ app.get("/api/admins",(req,res)=> {
     res.json(admins);
 })
 
+const siteRoutes = require("./routes/siteRoutes");
+app.use("/api/sites", siteRoutes);
+
+const collectRoutes = require("./routes/collectRoutes");
+app.use("/api/collect", collectRoutes);
+app.use(express.static("public"));
 app.listen(5000,function(){
     console.log("server started on port 5000")
 });
+
+
