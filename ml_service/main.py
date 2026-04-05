@@ -27,9 +27,32 @@ model.fit(X_train)
 def home():
     return {"message": "ML Service Running"}
 
+from fastapi import FastAPI
+from pydantic import BaseModel
+import numpy as np
+import joblib
+
+app = FastAPI()
+
+# Load trained model
+model = joblib.load("model.pkl")
+
+class UserData(BaseModel):
+    clicks: int
+    scroll: int
+    rpm: int
+
+@app.get("/")
+def home():
+    return {"message": "ML Service Running"}
+
 @app.post("/predict")
 def predict(data: UserData):
-    input_data = np.array([[data.clicks, data.scroll, data.rpm]])
+    input_data = np.array([[
+        data.clicks / 100,
+        data.scroll / 100,
+        data.rpm / 100
+    ]])
 
     prediction = model.predict(input_data)
     score = model.decision_function(input_data)

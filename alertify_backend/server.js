@@ -103,6 +103,14 @@ app.use("/api/sites", siteRoutes);
 
 const collectRoutes = require("./routes/collectRoutes");
 app.use("/api/collect", collectRoutes);
+
+const dashboardRoutes = require("./routes/dashboardRoutes");
+app.use("/api/dashboard", dashboardRoutes);
+
+const path = require("path");
+app.get("/tracker.js", (req, res) => {
+  res.sendFile(path.join(__dirname, "tracker.js"));
+});
 app.use(express.static("public"));
 app.listen(5000,function(){
     console.log("server started on port 5000")

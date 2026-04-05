@@ -30,6 +30,8 @@ async function detectAnomaly(event) {
     for(const anomaly of anomalies) {
         await Anomaly.create({
             eventId: event._id,
+            siteId: event.siteId,
+            adminId: event.adminId, 
             type: anomaly.type,
             details: anomaly.details
         });

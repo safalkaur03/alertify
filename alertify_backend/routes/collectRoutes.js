@@ -2,13 +2,25 @@ const express = require("express");
 const Site = require("../models/site");
 const Event = require("../models/Event");
 const router = express.Router();
-const axios = require("axios");
-const Anomaly = require("../models/Anomaly");
+const detectAnomaly = require("../utils/detectAnomaly");
 
 // PUBLIC endpoint (no auth middleware)
 router.post("/", async (req, res) => {
   try {
-    const { trackingId, sessionId, eventType, url, clicks, scrollDepth, requestsPerMinute } = req.body;
+    const {
+      trackingId,
+      sessionId,
+      eventType,
+      url,
+      clicks,
+      scrollDepth,
+      requestsPerMinute,
+    } = req.body;
+
+    // 3️⃣ Normalize inputs (IMPORTANT)
+    const safeClicks = Number(clicks) || 0;
+    const safeScroll = Number(scrollDepth) || 0;
+    const safeRPM = Number(requestsPerMinute) || 0;
 
     if (!trackingId || !sessionId || !eventType) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -22,39 +34,43 @@ router.post("/", async (req, res) => {
 
     // 2️⃣ Save event
     const event = new Event({
-      site: site._id,
-      sessionId,
-      eventType,
-      url,
-      ip: req.ip,
-      userAgent: req.headers["user-agent"]
-    });
+  site: site._id,
+  sessionId,
+  eventType,
+  url,
+  ip: req.ip,
+  userAgent: req.headers["user-agent"],
+  clicks: safeClicks,
+  scrollDepth: safeScroll,
+  requestsPerMinute: safeRPM,
+});
 
     await event.save();
+await detectAnomaly({
+  ...event.toObject(),
+  siteId: site._id,
+  adminId: site.admin,
+  clicks: safeClicks,
+  scrollDepth: safeScroll,
+  requestsPerMinute: safeRPM
+});
+    
 
-    // 3️⃣ Send data to Python ML service
-    const mlResponse = await axios.post("http://127.0.0.1:8000/predict", {
-      clicks: clicks || 0,
-      scroll: scrollDepth || 0,
-      rpm: requestsPerMinute || 0
-    });
 
-    const { result, score } = mlResponse.data;
+    // 5️⃣ Generate explanation (CONSISTENT)
+    let explanation = "";
 
-    // 4️⃣ Save anomaly if detected
-    if (result === "anomaly") {
-      await Anomaly.create({
-        eventId: event._id,
-        type: "ML Detected Anomaly",
-        details: { score }
-      });
-    }
+    if (safeClicks > 100) explanation += "High clicks, ";
+    if (safeScroll > 80) explanation += "Deep scrolling, ";
+    if (safeRPM > 100) explanation += "High request rate, ";
 
-    // 5️⃣ Final response
-    res.status(201).json({ 
+    if (!explanation) explanation = "Normal behavior";
+
+
+    // 7️⃣ Final response
+    res.status(201).json({
       message: "Event recorded",
-      result,
-      score
+      explanation,
     });
 
   } catch (error) {

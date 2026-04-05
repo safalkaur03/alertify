@@ -22,7 +22,7 @@
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        trackingId,
+        trackingId:siteId,
         sessionId,
         eventType,
         url: window.location.pathname,
