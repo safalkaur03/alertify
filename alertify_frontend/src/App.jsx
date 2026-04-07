@@ -1,32 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import AdminRegister from "./pages/AdminRegister";
-import AdminLogin from "./pages/AdminLogin";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing/Landing";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import Sites from "./pages/Sites";
+import SiteDetails from "./pages/SiteDetails";
+import Anomalies from "./pages/Anomalies";
+import MainLayout from "./layouts/MainLayout";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <Router>
-      <h1>Alertify</h1>
-      <nav>
-        <Link to="/adminregister">
-          <button>Register</button>
-        </Link>
-
-        <Link to="/adminlogin">
-          <button>Login</button>
-        </Link>
-      </nav>
+    <BrowserRouter>
       <Routes>
-        <Route path="/adminregister" element={<AdminRegister />} />
-        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/sites" element={<Sites />} />
+          <Route path="/sites/:id" element={<SiteDetails />} />
+          <Route path="/anomalies" element={<Anomalies />} />
+        </Route>
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
-export default App
+export default App;
