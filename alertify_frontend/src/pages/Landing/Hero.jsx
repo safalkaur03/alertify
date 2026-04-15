@@ -1,7 +1,11 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
 
 export default function Hero({ anomaly ,logs}) {
+    const navigate = useNavigate();
   return (
+    
     <div className="h-screen flex flex-col justify-center items-center text-center relative z-30">
 
       {/* ⚡ TITLE */}
@@ -30,7 +34,7 @@ export default function Hero({ anomaly ,logs}) {
 
       {/* 🔘 CTA */}
       <div className="mt-10">
-        <button className="relative px-8 py-3 border border-blue-500/30 bg-blue-500/10 backdrop-blur-md rounded-lg overflow-hidden hover:bg-blue-500/20 transition">
+        <button onClick={() => navigate("/auth")} className="relative px-8 py-3 border border-blue-500/30 bg-blue-500/10 backdrop-blur-md rounded-lg overflow-hidden hover:bg-blue-500/20 transition">
 
           <span className="relative z-10">Enter System</span>
 
